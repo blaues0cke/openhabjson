@@ -4,7 +4,8 @@ const fs = require('fs');
 // Variables
 var outputBuilder = {
     actions: {},
-    items:   []
+    items:   [],
+    rules:   []
 };
 
 function addAction (name, body) {
@@ -13,6 +14,33 @@ function addAction (name, body) {
 
 function addItem (line) {
     outputBuilder['items'].push(line);
+}
+
+function addRule (line) {
+    outputBuilder['rules'].push(line);
+}
+
+function addRuleForItem (itemType, item) {
+    var bodyBuilder = [];
+
+    bodyBuilder.push('rule "' + item.id + '"');
+    bodyBuilder.push('when');
+    bodyBuilder.push('    Item ' + item.id + ' changed to ON');
+    bodyBuilder.push('then');
+
+    if (itemType === 'buttons') {
+        bodyBuilder.push('postUpdate(' + item.id + ', OFF);');
+    }
+
+    item.actions.forEach(function (action) {
+        bodyBuilder.push('    callScript("' + action + '")');
+    });
+
+    bodyBuilder.push('end');
+
+    var body = bodyBuilder.join('\n');
+
+    addRule(body);
 }
 
 function checkForDataFilePath () {
@@ -54,13 +82,12 @@ function generateItemFile (configuration) {
         items.forEach(function (item) {
             finishObject(itemType, item);
             addItem(getItemString(itemType, item));
-
+            addRuleForItem(itemType, item);
         });
     });
 }
 
-function generateRulesFile (configuration) {
-
+function generateScriptFiles (configuration) {
     Object.keys(configuration.actions).forEach(function (actionType) {
         const actions = configuration.actions[actionType];
 
@@ -83,6 +110,8 @@ function getActionBody (actionType, action) {
                 bodyBuilder.push('callScript("' + routine.id + '");')
             } else if (routine.type === 'sendHttpGetRequest') {
                 bodyBuilder.push('sendHttpGetRequest("' + routine.url + '");')
+            } else if (routine.type === 'wait') {
+                bodyBuilder.push('Thread::sleep(("' + routine.ms + '");')
             }
         });
 
@@ -148,12 +177,12 @@ function readDataToObject (filePath) {
 if (checkForDataFilePath()) {
     const configuration = readDataToObject(process.argv[2]);
 
-    generateRulesFile(configuration);
+    generateScriptFiles(configuration);
     generateItemFile(configuration);
 
-    // TODO: write scripts (with button toggle and log warn)
     // TOOD: parameter
-    // TODO: untergruppen bei actions
+    // TODO: constants for types
+    // TODO: create files
 
     console.log(outputBuilder);
 }

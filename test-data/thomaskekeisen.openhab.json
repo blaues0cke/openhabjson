@@ -2,6 +2,19 @@
     "actions": {
         "simple": [
             {
+                "id":      "mode_party",
+                "routine": [
+                    {
+                        "id":   "hue_scene_all_blue",
+                        "type": "callScript"
+                    },
+                    {
+                        "ms":   2000,
+                        "type": "wait"
+                    }
+                ]
+            },
+            {
                 "id":      "mode_movie",
                 "routine": [
                     {
@@ -25,16 +38,19 @@
         "buttons": [
             {
                 "actions": [
-                    "mode_movie"
+                    "mode_party"
                 ],
                 "alexa":   true,
                 "group":   "alexa",
                 "name":    "Disko"
             },
             {
-                "alexa": true,
-                "group": "alexa",
-                "name":  "Kino"
+                "actions": [
+                    "mode_cinema"
+                ],
+                "alexa":   true,
+                "group":   "alexa",
+                "name":    "Kino"
             }
         ]
     }
