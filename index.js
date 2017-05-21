@@ -3,7 +3,8 @@ const fs = require('fs');
 
 // Variables
 var outputBuilder = {
-    items: []
+    actions: [],
+    items:   []
 };
 
 function addItem (line) {
@@ -38,20 +39,18 @@ function cleanObject (item) {
 function finishObject (itemType, item) {
     cleanObject(item);
 
-    console.error('Start to finish object:', item);
-
     item.id = 'item_' + item.group + '_' + item.nameInternal;
     item.tags = [];
 
     if (item.alexa) {
         item.tags.push(getAlexaTypeForItemType(itemType));
     }
-
-    console.error('Done finishing object', item);
 }
 
 function getAlexaTypeForItemType (itemType) {
-    if (itemType === 'switches') {
+    if (itemType === 'buttons') {
+        return 'Switchable';
+    } else if (itemType === 'switches') {
         return 'Switchable';
     }
 
@@ -81,7 +80,9 @@ function getItemString (itemType, item) {
 }
 
 function getItemTypeString (itemType) {
-    if (itemType === 'switches') {
+    if (itemType === 'buttons') {
+        return 'Switch';
+    } else if (itemType === 'switches') {
         return 'Switch';
     }
 
@@ -111,6 +112,10 @@ if (checkForDataFilePath()) {
 
         });
     });
+
+    // TODO: write scripts (with button toggle and log warn)
+    // TOOD: parameter
+    // TODO: untergruppen bei actions
 
     console.log(outputBuilder);
 }
