@@ -131,6 +131,7 @@ function generateScriptFiles (configuration) {
 
 function getActionBody (actionType, action) {
     if (actionType === 'simple') {
+        const sleep = 'Thread::sleep("50");';
         var bodyBuilder = [];
 
         bodyBuilder.push('logWarn("script", "' + action.id + '");');
@@ -138,11 +139,16 @@ function getActionBody (actionType, action) {
 
         action.routine.forEach(function (routine) {
             if (routine.type === routineTypes.callScript) {
-                bodyBuilder.push('callScript("' + routine.id + '");')
+                bodyBuilder.push('callScript("' + routine.id + '");');
+                bodyBuilder.push(sleep);
+                bodyBuilder.push('');
             } else if (routine.type === routineTypes.sendHttpGetRequest) {
-                bodyBuilder.push('sendHttpGetRequest("' + routine.url + '");')
+                bodyBuilder.push('sendHttpGetRequest("' + routine.url + '");');
+                bodyBuilder.push(sleep);
+                bodyBuilder.push('');
             } else if (routine.type === routineTypes.wait) {
-                bodyBuilder.push('Thread::sleep(("' + routine.ms + '");')
+                bodyBuilder.push('Thread::sleep("' + routine.ms + '");');
+                bodyBuilder.push('');
             }
         });
 
@@ -231,10 +237,12 @@ function writeFiles (configuration) {
 if (checkForDataFilePath()) {
     const configuration = readDataToObject(process.argv[2]);
 
-    generateScriptFiles(configuration);
-    generateItemFile(configuration);
+    if (configuration) {
+        generateScriptFiles(configuration);
+        generateItemFile(configuration);
 
-    writeFiles(configuration);
+        writeFiles(configuration);
 
-    console.log(outputBuilder);
+        console.log(outputBuilder);
+    }
 }

@@ -1,0 +1,102 @@
+{
+    "actions":    {
+        "simple": [
+            {
+                "id":      "light_scene_blue",
+                "routine": [
+                    {
+                        // TODO
+                    }
+                ]
+            },
+            {
+                "id":      "light_scene_movie",
+                "routine": [
+                    {
+                        // TODO
+                    }
+                ]
+            },
+            {
+                "id":      "mode_party",
+                "routine": [
+                    {
+                        "id":   "light_scene_blue",
+                        "type": "callScript"
+                    },
+                    {
+                        "id":   "music_playlist_techno_tracks",
+                        "type": "callScript"
+                    },
+                    {
+                        "ms":   2000,
+                        "type": "wait"
+                    },
+                    {
+                        "id":   "music_all_play_play_mode_random_next_track",
+                        "type": "callScript"
+                    }
+                ]
+            },
+            {
+                "id":      "mode_movie",
+                "routine": [
+                    {
+                        "id":   "light_scene_movie",
+                        "type": "callScript"
+                    },
+                    {
+                        "id":   "musik_pause",
+                        "type": "callScript"
+                    }
+                ]
+            },
+            {
+                "id":      "musik_pause",
+                "routine": [
+                    {
+                        "type": "sendHttpGetRequest",
+                        "url":  "$raumfeldUrl/raumserver/controller/pause"
+                    }
+                ]
+            },
+            {
+                "id":      "music_all_play_play_mode_random_next_track",
+                "routine": [
+                    // TODO
+                ]
+            },
+            {
+                "id":      "music_playlist_techno_tracks",
+                "routine": [
+                    {
+                        // TODO
+                    }
+                ]
+            }
+        ]
+    },
+    "items":      {
+        "buttons": [
+            {
+                "actions": [
+                    "mode_party"
+                ],
+                "alexa":   true,
+                "group":   "alexa",
+                "name":    "Disko"
+            },
+            {
+                "actions": [
+                    "mode_movie"
+                ],
+                "alexa":   true,
+                "group":   "alexa",
+                "name":    "Kino"
+            }
+        ]
+    },
+    "parameters": {
+        "raumfeldUrl": "http://192.168.0.133:8080"
+    }
+}
