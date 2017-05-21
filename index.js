@@ -1,6 +1,26 @@
 //
 const fs = require('fs');
 
+const internalTypes = {
+    buttons:  'buttons',
+    switches: 'switches'
+};
+
+const openHabTypes = {
+    switch: 'Switch'
+};
+
+const routineTypes = {
+    callScript:         'callScript',
+    sendHttpGetRequest: 'sendHttpGetRequest',
+    wait:               'wait',
+};
+
+// Constants
+const tags = {
+    switchable: 'Switchable'
+};
+
 // Variables
 var outputBuilder = {
     actions: {},
@@ -28,7 +48,7 @@ function addRuleForItem (itemType, item) {
     bodyBuilder.push('    Item ' + item.id + ' changed to ON');
     bodyBuilder.push('then');
 
-    if (itemType === 'buttons') {
+    if (itemType === internalTypes.buttons) {
         bodyBuilder.push('postUpdate(' + item.id + ', OFF);');
     }
 
@@ -106,11 +126,11 @@ function getActionBody (actionType, action) {
         bodyBuilder.push('');
 
         action.routine.forEach(function (routine) {
-            if (routine.type === 'callScript') {
+            if (routine.type === routineTypes.callScript) {
                 bodyBuilder.push('callScript("' + routine.id + '");')
-            } else if (routine.type === 'sendHttpGetRequest') {
+            } else if (routine.type === routineTypes.sendHttpGetRequest) {
                 bodyBuilder.push('sendHttpGetRequest("' + routine.url + '");')
-            } else if (routine.type === 'wait') {
+            } else if (routine.type === routineTypes.wait) {
                 bodyBuilder.push('Thread::sleep(("' + routine.ms + '");')
             }
         });
@@ -122,10 +142,10 @@ function getActionBody (actionType, action) {
 }
 
 function getAlexaTypeForItemType (itemType) {
-    if (itemType === 'buttons') {
-        return 'Switchable';
-    } else if (itemType === 'switches') {
-        return 'Switchable';
+    if (itemType === internalTypes.buttons) {
+        return tags.switchable;
+    } else if (itemType === internalTypes.switches) {
+        return tags.switchable;
     }
 
     return 'Error';
@@ -154,10 +174,10 @@ function getItemString (itemType, item) {
 }
 
 function getItemTypeString (itemType) {
-    if (itemType === 'buttons') {
-        return 'Switch';
-    } else if (itemType === 'switches') {
-        return 'Switch';
+    if (itemType === internalTypes.buttons) {
+        return openHabTypes.switch;
+    } else if (itemType === internalTypes.switches) {
+        return openHabTypes.switch;
     }
 
     return 'Error';
@@ -181,7 +201,6 @@ if (checkForDataFilePath()) {
     generateItemFile(configuration);
 
     // TOOD: parameter
-    // TODO: constants for types
     // TODO: create files
 
     console.log(outputBuilder);
