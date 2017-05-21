@@ -3,16 +3,16 @@ const fs = require('fs');
 
 // Variables
 var outputBuilder = {
-    actions: [],
+    actions: {},
     items:   []
 };
 
-function addItem (line) {
-    addOutput('items', line);
+function addAction (name, body) {
+    outputBuilder.actions[name] = body;
 }
 
-function addOutput (target, line) {
-    outputBuilder[target].push(line);
+function addItem (line) {
+    outputBuilder['items'].push(line);
 }
 
 function checkForDataFilePath () {
@@ -45,6 +45,51 @@ function finishObject (itemType, item) {
     if (item.alexa) {
         item.tags.push(getAlexaTypeForItemType(itemType));
     }
+}
+
+function generateItemFile (configuration) {
+    Object.keys(configuration.items).forEach(function (itemType) {
+        const items = configuration.items[itemType];
+
+        items.forEach(function (item) {
+            finishObject(itemType, item);
+            addItem(getItemString(itemType, item));
+
+        });
+    });
+}
+
+function generateRulesFile (configuration) {
+
+    Object.keys(configuration.actions).forEach(function (actionType) {
+        const actions = configuration.actions[actionType];
+
+        actions.forEach(function (action) {
+            addAction(action.id, getActionBody(actionType, action));
+
+        });
+    });
+}
+
+function getActionBody (actionType, action) {
+    if (actionType === 'simple') {
+        var bodyBuilder = [];
+
+        bodyBuilder.push('logWarn("script", "' + action.id + '");');
+        bodyBuilder.push('');
+
+        action.routine.forEach(function (routine) {
+            if (routine.type === 'callScript') {
+                bodyBuilder.push('callScript("' + routine.id + '");')
+            } else if (routine.type === 'sendHttpGetRequest') {
+                bodyBuilder.push('sendHttpGetRequest("' + routine.url + '");')
+            }
+        });
+
+        return bodyBuilder.join('\n');
+    }
+
+    return '';
 }
 
 function getAlexaTypeForItemType (itemType) {
@@ -103,15 +148,8 @@ function readDataToObject (filePath) {
 if (checkForDataFilePath()) {
     const configuration = readDataToObject(process.argv[2]);
 
-    Object.keys(configuration.items).forEach(function (itemType) {
-        const items = configuration.items[itemType];
-
-        items.forEach(function (item) {
-            finishObject(itemType, item);
-            addItem(getItemString(itemType, item));
-
-        });
-    });
+    generateRulesFile(configuration);
+    generateItemFile(configuration);
 
     // TODO: write scripts (with button toggle and log warn)
     // TOOD: parameter

@@ -1,26 +1,26 @@
 {
-    "actions": [
-        {
-            "id":      "mode_movie",
-            "type":    "simple",
-            "routine": [
-                {
-                    "id":   "musik_pause",
-                    "type": "callScript"
-                }
-            ]
-        },
-        {
-            "id":      "musik_pause",
-            "type":    "simple",
-            "routine": [
-                {
-                    "type": "sendHttpGetRequest",
-                    "url":  "http://192.168.0.133:8080/raumserver/controller/pause"
-                }
-            ]
-        }
-    ],
+    "actions": {
+        "simple": [
+            {
+                "id":      "mode_movie",
+                "routine": [
+                    {
+                        "id":   "musik_pause",
+                        "type": "callScript"
+                    }
+                ]
+            },
+            {
+                "id":      "musik_pause",
+                "routine": [
+                    {
+                        "type": "sendHttpGetRequest",
+                        "url":  "http://192.168.0.133:8080/raumserver/controller/pause"
+                    }
+                ]
+            }
+        ]
+    },
     "items":   {
         "buttons": [
             {
