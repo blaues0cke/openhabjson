@@ -49,7 +49,7 @@ function addRuleForItem (itemType, item) {
     bodyBuilder.push('then');
 
     if (itemType === internalTypes.buttons) {
-        bodyBuilder.push('postUpdate(' + item.id + ', OFF);');
+        bodyBuilder.push('    postUpdate(' + item.id + ', OFF);');
     }
 
     item.actions.forEach(function (action) {
@@ -61,6 +61,17 @@ function addRuleForItem (itemType, item) {
     var body = bodyBuilder.join('\n');
 
     addRule(body);
+}
+
+function applyParameters (string, configuration) {
+    Object.keys(configuration.parameters).forEach(function (parameterName) {
+        const value = configuration.parameters[parameterName];
+        const regex = new RegExp('\\$' + parameterName, 'g');
+
+        string = string.replace(regex, value);
+    });
+
+    return string;
 }
 
 function checkForDataFilePath () {
@@ -194,14 +205,36 @@ function readDataToObject (filePath) {
     }
 }
 
+function writeFile (filePath, content, configuration) {
+    fs.writeFile(filePath, applyParameters(content, configuration), function (error) {
+        if (error) {
+            console.error('Oh no, something went wrong.');
+        }
+    });
+}
+
+function writeFiles (configuration) {
+
+    const itemContet = outputBuilder.items.join('\n');
+    writeFile('export/items/openhabjson.items', itemContet, configuration);
+
+    const rulesContent = outputBuilder.rules.join('\n\n');
+    writeFile('export/rules/openhabjson.rules', rulesContent, configuration);
+
+    Object.keys(outputBuilder.actions).forEach(function (actionName) {
+        const body = outputBuilder.actions[actionName];
+
+        writeFile('export/scripts/' + actionName + '.script', body, configuration);
+    });
+}
+
 if (checkForDataFilePath()) {
     const configuration = readDataToObject(process.argv[2]);
 
     generateScriptFiles(configuration);
     generateItemFile(configuration);
 
-    // TOOD: parameter
-    // TODO: create files
+    writeFiles(configuration);
 
     console.log(outputBuilder);
 }
