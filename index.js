@@ -3,11 +3,11 @@ const fs = require('fs');
 
 // Variables
 var outputBuilder = {
-    items: ''
+    items: []
 };
 
 function addItem (line) {
-    addOutput(line);
+    addOutput('items', line);
 }
 
 function addOutput (target, line) {
@@ -30,6 +30,64 @@ function checkForDataFilePath () {
     return false;
 }
 
+function cleanObject (item) {
+    item.group = item.group.toLowerCase();
+    item.nameInternal = item.name.toLowerCase().replace(/ /g, '_');
+}
+
+function finishObject (itemType, item) {
+    cleanObject(item);
+
+    console.error('Start to finish object:', item);
+
+    item.id = 'item_' + item.group + '_' + item.nameInternal;
+    item.tags = [];
+
+    if (item.alexa) {
+        item.tags.push(getAlexaTypeForItemType(itemType));
+    }
+
+    console.error('Done finishing object', item);
+}
+
+function getAlexaTypeForItemType (itemType) {
+    if (itemType === 'switches') {
+        return 'Switchable';
+    }
+
+    return 'Error';
+}
+
+function getItemString (itemType, item) {
+    var stringBuilder = [];
+
+    // Type
+    stringBuilder.push(getItemTypeString(itemType));
+
+    // ID
+    stringBuilder.push(item.id);
+
+    // Name
+    stringBuilder.push('"' + item.name + '"');
+
+    // TODO: groups
+
+    // Tags
+    if (item.tags.length > 0) {
+        stringBuilder.push('["' + item.tags.join('", "') + '"]');
+    }
+
+    return stringBuilder.join(' ');
+}
+
+function getItemTypeString (itemType) {
+    if (itemType === 'switches') {
+        return 'Switch';
+    }
+
+    return 'Error';
+}
+
 function readDataToObject (filePath) {
     const content = fs.readFileSync(filePath, 'utf8');
 
@@ -48,7 +106,11 @@ if (checkForDataFilePath()) {
         const items = configuration.items[itemType];
 
         items.forEach(function (item) {
-            console.log(item);
+            finishObject(itemType, item);
+            addItem(getItemString(itemType, item));
+
         });
     });
+
+    console.log(outputBuilder);
 }
