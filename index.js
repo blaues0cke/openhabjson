@@ -23,13 +23,20 @@ const tags = {
 
 // Variables
 var outputBuilder = {
-    actions: {},
-    items:   [],
-    rules:   []
+    actions:  {},
+    items:    [],
+    rules:    [],
+    sitemaps: {
+        debug: []
+    }
 };
 
 function addAction (name, body) {
     outputBuilder.actions[name] = body;
+}
+
+function addDebugSitemap (line) {
+    outputBuilder['sitemaps'].debug.push(line);
 }
 
 function addItem (line) {
@@ -106,6 +113,16 @@ function finishObject (itemType, item) {
     }
 }
 
+function generateDebugSitemap (configuration) {
+    outputBuilder.sitemaps.debug = [].concat(
+        'sitemap debug label="Debug" {',
+        '    Frame label="Debug" {',
+        outputBuilder.sitemaps.debug,
+        '    }',
+        '}'
+    ).join('\n');
+}
+
 function generateItemFile (configuration) {
     Object.keys(configuration.items).forEach(function (itemType) {
         const items = configuration.items[itemType];
@@ -114,6 +131,7 @@ function generateItemFile (configuration) {
             finishObject(itemType, item);
             addItem(getItemString(itemType, item));
             addRuleForItem(itemType, item);
+            addDebugSitemap(getItemSitemapString(itemType, item));
         });
     });
 }
@@ -190,6 +208,21 @@ function getItemString (itemType, item) {
     return stringBuilder.join(' ');
 }
 
+function getItemSitemapString (itemType, item) {
+    var stringBuilder = [];
+
+    // Type
+    stringBuilder.push(getItemTypeString(itemType));
+
+    // ID
+    stringBuilder.push('item=' + item.id);
+
+    // Label
+    stringBuilder.push('label="' + item.name + '"');
+
+    return '        ' + stringBuilder.join(' ');
+}
+
 function getItemTypeString (itemType) {
     if (itemType === internalTypes.buttons) {
         return openHabTypes.switch;
@@ -232,6 +265,13 @@ function writeFiles (configuration) {
 
         writeFile('export/scripts/' + actionName + '.script', body, configuration);
     });
+
+    Object.keys(outputBuilder.sitemaps).forEach(function (sitemapName) {
+        const body = outputBuilder.sitemaps[sitemapName];
+
+        writeFile('export/sitemaps/' + sitemapName + '.sitemap', body, configuration);
+    });
+
 }
 
 if (checkForDataFilePath()) {
@@ -240,6 +280,7 @@ if (checkForDataFilePath()) {
     if (configuration) {
         generateScriptFiles(configuration);
         generateItemFile(configuration);
+        generateDebugSitemap(configuration);
 
         writeFiles(configuration);
 
