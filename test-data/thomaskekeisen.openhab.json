@@ -1,0 +1,11 @@
+{
+    "items": {
+        "switches": [
+            {
+                "alexa": true,
+                "group": "alexa",
+                "name":  "Disko"
+            }
+        ]
+    }
+}

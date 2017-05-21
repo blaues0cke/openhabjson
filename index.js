@@ -1,6 +1,19 @@
 //
 const fs = require('fs');
 
+// Variables
+var outputBuilder = {
+    items: ''
+};
+
+function addItem (line) {
+    addOutput(line);
+}
+
+function addOutput (target, line) {
+    outputBuilder[target].push(line);
+}
+
 function checkForDataFilePath () {
     if (process.argv && process.argv[2]) {
         console.error('Checking configuration: ' + process.argv[2]);
@@ -31,5 +44,11 @@ function readDataToObject (filePath) {
 if (checkForDataFilePath()) {
     const configuration = readDataToObject(process.argv[2]);
 
-    console.log('GDs', configuration);
+    Object.keys(configuration.items).forEach(function (itemType) {
+        const items = configuration.items[itemType];
+
+        items.forEach(function (item) {
+            console.log(item);
+        });
+    });
 }
