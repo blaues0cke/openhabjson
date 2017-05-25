@@ -36,6 +36,40 @@
                 ]
             },
             {
+                "id":      "light_scene_office_chill",
+                "routine": [
+                    {
+                        "items": [
+                            "item_buero_buero_hinter_monitoren_color",
+                            "item_buero_buero_unter_regal_color"
+                        ],
+                        "type":  "sendCommand",
+                        "value": "$colorRed$"
+                    },
+                    {
+                        "items": [
+                            "item_buero_buero_fitnessgeraet_color"
+                        ],
+                        "type":  "sendCommand",
+                        "value": "$colorOrange$"
+                    },
+                    {
+                        "items": [
+                            "item_buero_buero_lampe_decke_color"
+                        ],
+                        "type":  "sendCommand",
+                        "value": "$colorBlue$"
+                    },
+                    {
+                        "items": [
+                            "item_buero_buero_unter_tisch_color"
+                        ],
+                        "type":  "sendCommand",
+                        "value": "$colorGreen$"
+                    }
+                ]
+            },
+            {
                 "id":      "light_scene_movie",
                 "routine": [
                     {
@@ -173,7 +207,7 @@
         ]
     },
     "items":      {
-        "buttons": [
+        "buttons":  [
             {
                 "actions": [
                     "light_scene_blue"
@@ -181,6 +215,14 @@
                 "alexa":   true,
                 "group":   "alexa",
                 "name":    "Blau"
+            },
+            {
+                "actions": [
+                    "light_scene_office_chill"
+                ],
+                "alexa":   true,
+                "group":   "alexa",
+                "name":    "Office-Chill"
             },
             {
                 "actions": [
@@ -205,6 +247,14 @@
                 "alexa":   true,
                 "group":   "alexa",
                 "name":    "Kino"
+            }
+        ],
+        "switches": [
+            {
+                "alexa":   false,
+                "group":   "hue",
+                "channel": "hue:0210:0017884e4a6e:17:color",
+                "name":    "Licht Büro unter Tisch"
             }
         ]
     },

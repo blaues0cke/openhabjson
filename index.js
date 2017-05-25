@@ -3,10 +3,14 @@ const fs = require('fs');
 
 const internalTypes = {
     buttons:  'buttons',
+    color:    'color',
+    dimmer:   'dimmer',
     switches: 'switches'
 };
 
 const openHabTypes = {
+    color:  'Color',
+    dimmer: 'Dimmer',
     switch: 'Switch'
 };
 
@@ -22,10 +26,15 @@ const tags = {
     switchable: 'Switchable'
 };
 
+const thingTypes = {
+    hue: "hue"
+};
+
 // Variables
 var outputBuilder = {
     actions:  {},
     items:    [],
+    things:   [],
     readme:   [],
     rules:    [],
     sitemaps: {
@@ -45,6 +54,10 @@ function addItem (line) {
     outputBuilder['items'].push(line);
 }
 
+function addThing (line) {
+    outputBuilder['things'].push(line);
+}
+
 function addReadme (line) {
     outputBuilder['readme'].push(line);
 }
@@ -54,26 +67,28 @@ function addRule (line) {
 }
 
 function addRuleForItem (itemType, item) {
-    var bodyBuilder = [];
+    if (item.actions) {
+        var bodyBuilder = [];
 
-    bodyBuilder.push('rule "' + item.id + '"');
-    bodyBuilder.push('when');
-    bodyBuilder.push('    Item ' + item.id + ' changed to ON');
-    bodyBuilder.push('then');
+        bodyBuilder.push('rule "' + item.id + '"');
+        bodyBuilder.push('when');
+        bodyBuilder.push('    Item ' + item.id + ' changed to ON');
+        bodyBuilder.push('then');
 
-    if (itemType === internalTypes.buttons) {
-        bodyBuilder.push('    postUpdate(' + item.id + ', OFF);');
+        if (itemType === internalTypes.buttons) {
+            bodyBuilder.push('    postUpdate(' + item.id + ', OFF);');
+        }
+
+        item.actions.forEach(function (action) {
+            bodyBuilder.push('    callScript("' + action + '")');
+        });
+
+        bodyBuilder.push('end');
+
+        var body = bodyBuilder.join('\n');
+
+        addRule(body);
     }
-
-    item.actions.forEach(function (action) {
-        bodyBuilder.push('    callScript("' + action + '")');
-    });
-
-    bodyBuilder.push('end');
-
-    var body = bodyBuilder.join('\n');
-
-    addRule(body);
 }
 
 function applyParameters (string, configuration) {
@@ -105,7 +120,10 @@ function checkForDataFilePath () {
 
 function cleanObject (item) {
     item.group = item.group.toLowerCase();
-    item.nameInternal = item.name.toLowerCase().replace(/ /g, '_');
+    item.nameInternal = item.name.toLowerCase().replace(/( |-)/g, '_').replace(/ü/g, 'ue').replace(/ö/g, 'oe').replace(
+        /ä/g,
+        'ae'
+    );
 }
 
 function finishObject (itemType, item) {
@@ -140,6 +158,38 @@ function generateItemFile (configuration) {
             addDebugSitemap(getItemSitemapString(itemType, item));
         });
     });
+}
+
+function generateThingFiles (configuration) {
+    if (configuration.things) {
+        Object.keys(configuration.things).forEach(function (thingType) {
+            const thingTypeData = configuration.things[thingType];
+
+            if (thingType === thingTypes.hue) {
+                const bridgeData = thingTypeData.bridge;
+
+                if (bridgeData) {
+                    addThing(
+                        'Bridge '
+                        + bridgeData.id
+                        + ' [ ipAddress="'
+                        + bridgeData.ip
+                        + '", userName="'
+                        + bridgeData.username
+                        + '" ] {')
+                    ;
+
+                    const items = thingTypeData.items;
+
+                    items.forEach(function (item) {
+                        addThing('    ' + item.type + ' ' + item.id + ' [ lightId="' + item.lightId + '" ]');
+                    });
+
+                    addThing('}');
+                }
+            }
+        });
+    }
 }
 
 function generateReadme (configuration) {
@@ -231,20 +281,18 @@ function getAlexaTypeForItemType (itemType) {
 function getItemString (itemType, item) {
     var stringBuilder = [];
 
-    // Type
     stringBuilder.push(getItemTypeString(itemType));
-
-    // ID
     stringBuilder.push(item.id);
-
-    // Name
     stringBuilder.push('"' + item.name + '"');
 
     // TODO: groups
 
-    // Tags
-    if (item.tags.length > 0) {
+    if (item.tags && item.tags.length > 0) {
         stringBuilder.push('["' + item.tags.join('", "') + '"]');
+    }
+
+    if (item.channel && item.channel.length > 0) {
+        stringBuilder.push('{ channel="' + item.channel + '" }');
     }
 
     return stringBuilder.join(' ');
@@ -253,13 +301,8 @@ function getItemString (itemType, item) {
 function getItemSitemapString (itemType, item) {
     var stringBuilder = [];
 
-    // Type
     stringBuilder.push(getItemTypeString(itemType));
-
-    // ID
     stringBuilder.push('item=' + item.id);
-
-    // Label
     stringBuilder.push('label="' + item.name + '"');
 
     return '        ' + stringBuilder.join(' ');
@@ -270,6 +313,10 @@ function getItemTypeString (itemType) {
         return openHabTypes.switch;
     } else if (itemType === internalTypes.switches) {
         return openHabTypes.switch;
+    } else if (itemType === internalTypes.dimmer) {
+        return openHabTypes.dimmer;
+    } else if (itemType === internalTypes.color) {
+        return openHabTypes.color;
     }
 
     return 'Error';
@@ -295,6 +342,8 @@ function writeFile (filePath, content, configuration) {
 }
 
 function writeFiles (configuration) {
+    const thingContent = outputBuilder.things.join('\n');
+    writeFile('export/things/openhabjson.things', thingContent, configuration);
 
     const itemContent = outputBuilder.items.join('\n');
     writeFile('export/items/openhabjson.items', itemContent, configuration);
@@ -323,6 +372,7 @@ if (checkForDataFilePath()) {
     const configuration = readDataToObject(process.argv[2]);
 
     if (configuration) {
+        generateThingFiles(configuration);
         generateScriptFiles(configuration);
         generateItemFile(configuration);
         generateDebugSitemap(configuration);
