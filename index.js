@@ -26,6 +26,7 @@ const tags = {
 var outputBuilder = {
     actions:  {},
     items:    [],
+    readme:   [],
     rules:    [],
     sitemaps: {
         debug: []
@@ -42,6 +43,10 @@ function addDebugSitemap (line) {
 
 function addItem (line) {
     outputBuilder['items'].push(line);
+}
+
+function addReadme (line) {
+    outputBuilder['readme'].push(line);
 }
 
 function addRule (line) {
@@ -133,6 +138,28 @@ function generateItemFile (configuration) {
             addItem(getItemString(itemType, item));
             addRuleForItem(itemType, item);
             addDebugSitemap(getItemSitemapString(itemType, item));
+        });
+    });
+}
+
+function generateReadme (configuration) {
+    addReadme('# Smarthome commands');
+    addReadme('---');
+
+    Object.keys(configuration.items).forEach(function (itemType) {
+        const items = configuration.items[itemType];
+
+        items.forEach(function (item) {
+
+            if (item.alexa) {
+
+                if (itemType === internalTypes.buttons) {
+                    addReadme('* Alexa, "' + item.name + '" an');
+                } else if (itemType === internalTypes.switches) {
+                    addReadme('* Alexa, "' + item.name + '" an');
+                    addReadme('* Alexa, "' + item.name + '" aus');
+                }
+            }
         });
     });
 }
@@ -269,8 +296,8 @@ function writeFile (filePath, content, configuration) {
 
 function writeFiles (configuration) {
 
-    const itemContet = outputBuilder.items.join('\n');
-    writeFile('export/items/openhabjson.items', itemContet, configuration);
+    const itemContent = outputBuilder.items.join('\n');
+    writeFile('export/items/openhabjson.items', itemContent, configuration);
 
     const rulesContent = outputBuilder.rules.join('\n\n');
     writeFile('export/rules/openhabjson.rules', rulesContent, configuration);
@@ -287,6 +314,9 @@ function writeFiles (configuration) {
         writeFile('export/sitemaps/' + sitemapName + '.sitemap', body, configuration);
     });
 
+    const readmeContent = outputBuilder.readme.join('\n');
+    writeFile('export/README.md', readmeContent, configuration);
+
 }
 
 if (checkForDataFilePath()) {
@@ -296,6 +326,7 @@ if (checkForDataFilePath()) {
         generateScriptFiles(configuration);
         generateItemFile(configuration);
         generateDebugSitemap(configuration);
+        generateReadme(configuration);
 
         writeFiles(configuration);
 
