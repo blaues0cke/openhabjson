@@ -74,7 +74,7 @@ function addRuleForItem (itemType, item) {
 function applyParameters (string, configuration) {
     Object.keys(configuration.parameters).forEach(function (parameterName) {
         const value = configuration.parameters[parameterName];
-        const regex = new RegExp('\\$' + parameterName, 'g');
+        const regex = new RegExp('\\$' + parameterName + '\\$', 'g');
 
         string = string.replace(regex, value);
     });
@@ -166,9 +166,19 @@ function getActionBody (actionType, action) {
                 bodyBuilder.push(sleep);
                 bodyBuilder.push('');
             } else if (routine.type === routineTypes.sendCommand) {
-                bodyBuilder.push('sendCommand(' + routine.item + ', ' + routine.value + ');');
-                bodyBuilder.push(sleep);
-                bodyBuilder.push('');
+                if (routine.items) {
+                    for (var key in routine.items) {
+                        var item = routine.items[key];
+
+                        bodyBuilder.push('sendCommand(' + item + ', ' + routine.value + ');');
+                        bodyBuilder.push(sleep);
+                        bodyBuilder.push('');
+                    }
+                } else {
+                    bodyBuilder.push('sendCommand(' + routine.item + ', ' + routine.value + ');');
+                    bodyBuilder.push(sleep);
+                    bodyBuilder.push('');
+                }
             } else if (routine.type === routineTypes.wait) {
                 bodyBuilder.push('Thread::sleep(' + routine.ms + ');');
                 bodyBuilder.push('');

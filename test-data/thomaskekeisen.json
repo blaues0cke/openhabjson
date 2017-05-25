@@ -12,9 +12,45 @@
                 "id":      "light_scene_movie",
                 "routine": [
                     {
-                        "item":  "item_buero_buero_fitnessgeraet_color",
+                        "items": [
+                            "item_buero_buero_fitnessgeraet_color",
+                            "item_buero_buero_hinter_monitoren_color",
+                            "item_buero_buero_lampe_decke_color",
+                            "item_buero_buero_unter_tisch_color",
+                            "item_buero_buero_unter_regal_color",
+                            "item_esszimmer_decke_richtung_bad_color",
+                            "item_esszimmer_decke_richtung_kueche_color",
+                            "item_esszimmer_decke_richtung_treppe_color",
+                            "item_flur_decke_richtung_bad_color",
+                            "item_flur_decke_richtung_buero_color",
+                            "item_flur_decke_richtung_eingang_color",
+                            "item_flur_decke_richtung_esszimmer_color",
+                            "item_kueche_decke_color",
+                            "item_schlafzimmer_hinter_kleiderschrank_color",
+                            "item_schlafzimmer_decke_color",
+                            "item_treppenhaus_ueber_treppe_color",
+                            "item_wohnzimmer_sideboard_color",
+                            "item_wohnzimmer_decke_links_color",
+                            "item_wohnzimmer_decke_mitte_color",
+                            "item_wohnzimmer_decke_rechts_color"
+                        ],
                         "type":  "sendCommand",
                         "value": "OFF"
+                    },
+                    {
+                        "items": [
+                            "item_treppenhaus_unter_treppe_color",
+                            "item_wohnzimmer_hinter_couch_color"
+                        ],
+                        "type":  "sendCommand",
+                        "value": "$colorBlueDark$"
+                    },
+                    {
+                        "items": [
+                            "item_wohnzimmer_hinter_fernseher_color"
+                        ],
+                        "type":  "sendCommand",
+                        "value": "$colorBlue$"
                     }
                 ]
             },
@@ -57,7 +93,7 @@
                 "routine": [
                     {
                         "type": "sendHttpGetRequest",
-                        "url":  "$raumfeldUrl/raumserver/controller/pause"
+                        "url":  "$raumfeldUrl$/raumserver/controller/pause"
                     }
                 ]
             },
@@ -96,8 +132,8 @@
         ]
     },
     "parameters": {
-        "colorBlue":     "HSBType::fromRGB(0, 0, 255);",
-        "colorBlueDark": "new HSBType(new DecimalType(240), new PercentType(100), new PercentType(25));",
+        "colorBlue":     "HSBType::fromRGB(0, 0, 255)",
+        "colorBlueDark": "new HSBType(new DecimalType(240), new PercentType(100), new PercentType(25))",
         "raumfeldUrl":   "http://192.168.0.133:8080"
     }
 }
