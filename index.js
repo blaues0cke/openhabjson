@@ -149,7 +149,7 @@ function generateScriptFiles (configuration) {
 
 function getActionBody (actionType, action) {
     if (actionType === 'simple') {
-        const sleep = 'Thread::sleep("50");';
+        const sleep = 'Thread::sleep(50);';
         var bodyBuilder = [];
 
         bodyBuilder.push('logWarn("script", "' + action.id + '");');
@@ -165,7 +165,7 @@ function getActionBody (actionType, action) {
                 bodyBuilder.push(sleep);
                 bodyBuilder.push('');
             } else if (routine.type === routineTypes.wait) {
-                bodyBuilder.push('Thread::sleep("' + routine.ms + '");');
+                bodyBuilder.push('Thread::sleep(' + routine.ms + ');');
                 bodyBuilder.push('');
             }
         });
