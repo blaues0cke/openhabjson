@@ -5,7 +5,6 @@
                 "id":      "light_scene_blue",
                 "routine": [
                     {
-                        // TODO
                     }
                 ]
             },
@@ -13,7 +12,9 @@
                 "id":      "light_scene_movie",
                 "routine": [
                     {
-                        // TODO
+                        "item":  "item_buero_buero_fitnessgeraet_color",
+                        "type":  "sendCommand",
+                        "value": "OFF"
                     }
                 ]
             },
@@ -63,14 +64,12 @@
             {
                 "id":      "music_all_play_play_mode_random_next_track",
                 "routine": [
-                    // TODO
                 ]
             },
             {
                 "id":      "music_playlist_techno_tracks",
                 "routine": [
                     {
-                        // TODO
                     }
                 ]
             }
@@ -84,7 +83,7 @@
                 ],
                 "alexa":   true,
                 "group":   "alexa",
-                "name":    "Disko"
+                "name":    "Disco"
             },
             {
                 "actions": [
@@ -97,6 +96,8 @@
         ]
     },
     "parameters": {
-        "raumfeldUrl": "http://192.168.0.133:8080"
+        "colorBlue":     "HSBType::fromRGB(0, 0, 255);",
+        "colorBlueDark": "new HSBType(new DecimalType(240), new PercentType(100), new PercentType(25));",
+        "raumfeldUrl":   "http://192.168.0.133:8080"
     }
 }

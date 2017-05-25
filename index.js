@@ -12,6 +12,7 @@ const openHabTypes = {
 
 const routineTypes = {
     callScript:         'callScript',
+    sendCommand:        'sendCommand',
     sendHttpGetRequest: 'sendHttpGetRequest',
     wait:               'wait',
 };
@@ -162,6 +163,10 @@ function getActionBody (actionType, action) {
                 bodyBuilder.push('');
             } else if (routine.type === routineTypes.sendHttpGetRequest) {
                 bodyBuilder.push('sendHttpGetRequest("' + routine.url + '");');
+                bodyBuilder.push(sleep);
+                bodyBuilder.push('');
+            } else if (routine.type === routineTypes.sendCommand) {
+                bodyBuilder.push('sendCommand(' + routine.item + ', ' + routine.value + ');');
                 bodyBuilder.push(sleep);
                 bodyBuilder.push('');
             } else if (routine.type === routineTypes.wait) {
